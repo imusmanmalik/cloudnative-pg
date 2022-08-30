@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-// nolint
+	// nolint
 	apiv1 "github.com/cloudnative-pg/cloudnative-pg/api/v1"
 	"github.com/cloudnative-pg/cloudnative-pg/internal/cmd/manager/instance/run/lifecycle"
 	"github.com/cloudnative-pg/cloudnative-pg/internal/configuration"

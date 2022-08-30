@@ -69,13 +69,13 @@ require_clean_work_tree () {
 require_clean_work_tree "release"
 
 # Verify that you are in a release branch
-if branch=$(git symbolic-ref --short -q HEAD) && [[ "$branch" == release-* ]]
-then
-    echo "Releasing ${release_version}"
-else
-    echo >&2 "Release is not possible because you are not on a 'release-*' branch ($branch)"
-    exit 1
-fi
+#if branch=$(git symbolic-ref --short -q HEAD) && [[ "$branch" == release-* ]]
+#then
+#    echo "Releasing ${release_version}"
+#else
+#    echo >&2 "Release is not possible because you are not on a 'release-*' branch ($branch)"
+#    exit 1
+#fi
 
 make kustomize
 KUSTOMIZE="${REPO_ROOT}/bin/kustomize"
@@ -98,22 +98,22 @@ CONFIG_TMP_DIR=$(mktemp -d)
 cp -r config/* "${CONFIG_TMP_DIR}"
 (
     cd "${CONFIG_TMP_DIR}/manager"
-    "${KUSTOMIZE}" edit set image controller="ghcr.io/cloudnative-pg/cloudnative-pg:${release_version}"
+    "${KUSTOMIZE}" edit set image controller="registry.dev:5000/cloudnative-pg:devel"
 )
 
 "${KUSTOMIZE}" build "${CONFIG_TMP_DIR}/default" > "${release_manifest}"
 rm -fr "${CONFIG_TMP_DIR}"
 
 # Create a new branch for the release that originates the PR
-git checkout -b "release/v${release_version}"
-git add \
-    pkg/versions/versions.go \
-    docs/src/installation_upgrade.md \
-    "${release_manifest}"
-git commit -sm "Version tag to ${release_version}"
-git push origin -u "release/v${release_version}"
-
-cat <<EOF
-Generated release manifest ${release_manifest}
-Created and pushed branch release/v${release_version}
-EOF
+#git checkout -b "release/v${release_version}"
+#git add \
+#    pkg/versions/versions.go \
+#    docs/src/installation_upgrade.md \
+#    "${release_manifest}"
+#git commit -sm "Version tag to ${release_version}"
+#git push origin -u "release/v${release_version}"
+#
+#cat <<EOF
+#Generated release manifest ${release_manifest}
+#Created and pushed branch release/v${release_version}
+#EOF
