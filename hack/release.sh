@@ -67,7 +67,7 @@ require_clean_work_tree () {
 }
 
 require_clean_work_tree "release"
-
+branch=$(git symbolic-ref --short -q HEAD)
 # Verify that you are in a release branch
 #if branch=$(git symbolic-ref --short -q HEAD) && [[ "$branch" == release-* ]]
 #then
