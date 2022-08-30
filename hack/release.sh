@@ -98,7 +98,7 @@ CONFIG_TMP_DIR=$(mktemp -d)
 cp -r config/* "${CONFIG_TMP_DIR}"
 (
     cd "${CONFIG_TMP_DIR}/manager"
-    "${KUSTOMIZE}" edit set image controller="registry.dev:5000/cloudnative-pg:devel"
+    "${KUSTOMIZE}" edit set image controller="registry.dev:5000/cloudnative-pg:dev-630-test"
 )
 
 "${KUSTOMIZE}" build "${CONFIG_TMP_DIR}/default" > "${release_manifest}"

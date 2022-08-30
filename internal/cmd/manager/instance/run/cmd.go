@@ -187,14 +187,21 @@ func runSubCommand(ctx context.Context, instance *postgres.Instance) error {
 	// which will imply the deletion of the child onlineUpgradeCtx too, again, terminating all the Runnables.
 	onlineUpgradeCtx, onlineUpgradeCancelFunc := context.WithCancel(postgresLifecycleManager.GetGlobalContext())
 	defer onlineUpgradeCancelFunc()
+	setupLog.Info("configuration.Current.EnableInstanceManagerInplaceUpdates: " +
+		strconv.FormatBool(configuration.Current.EnableInstanceManagerInplaceUpdates))
+	setupLog.Info("configuration.Current.WebserverReadTimeout: " + configuration.Current.WebserverReadTimeout)
+	setupLog.Info("configuration.Current.WebserverReadHeaderTimeout: "  + configuration.Current.WebserverReadHeaderTimeout)
+	setupLog.Info("configuration.Current.PostgresImageName: " + configuration.Current.PostgresImageName)
 
 	readTimeout, err := strconv.ParseInt(configuration.Current.WebserverReadTimeout, 10, 64)
 	if err != nil {
-		setupLog.Error(err, "unable to covert WebserverReadTimeout to int64")
+		setupLog.Error(err, "unable to covert WebserverReadTimeout to int64, the value is: " +
+			configuration.Current.WebserverReadTimeout)
 	}
 	readHeaderTimeout, err := strconv.ParseInt(configuration.Current.WebserverReadHeaderTimeout, 10, 64)
 	if err != nil {
-		setupLog.Error(err, "unable to covert WebserverReadHeaderTimeout to int64")
+		setupLog.Error(err, "unable to covert WebserverReadHeaderTimeout to int64, the value is: " +
+			configuration.Current.WebserverReadHeaderTimeout)
 	}
 	remoteSrv, err := webserver.NewRemoteWebServer(instance, onlineUpgradeCancelFunc, exitedConditions,
 		readTimeout, readHeaderTimeout)

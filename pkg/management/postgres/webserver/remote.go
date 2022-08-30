@@ -61,7 +61,7 @@ func NewRemoteWebServer(
 	serveMux.HandleFunc(url.PathPgStatus, endpoints.pgStatus)
 	serveMux.HandleFunc(url.PathUpdate,
 		endpoints.updateInstanceManager(cancelFunc, exitedConditions))
-
+	panic(readTimeout)
 	rTimeout := DefaultReadTimeout
 	if readTimeout != 0 {
 		rTimeout = time.Duration(readTimeout) * time.Second
