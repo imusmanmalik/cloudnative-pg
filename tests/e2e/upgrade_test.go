@@ -577,7 +577,7 @@ var _ = Describe("Upgrade", Label(tests.LabelUpgrade, tests.LabelNoOpenshift), O
 		applyUpgrade(upgradeNamespace)
 	})
 
-	It("works after an upgrade with online upgrade", func() {
+	FIt("works after an upgrade with online upgrade", func() {
 		By("applying environment changes for current upgrade to be performed", func() {
 			testsUtils.EnableOnlineUpgradeForInstanceManager(operatorNamespace, configName, env)
 		})
