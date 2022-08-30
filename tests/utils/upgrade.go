@@ -55,7 +55,7 @@ func EnableOnlineUpgradeForInstanceManager(pgOperatorNamespace, configName strin
 			},
 			Data: map[string]string{
 				"ENABLE_INSTANCE_MANAGER_INPLACE_UPDATES": "true",
-				"WEBSERVER_READ_TIMEOUT":                  "1", "WEBSERVER_READ_HEADER_TIMEOUT": "1",
+				"WEBSERVER_READ_TIMEOUT":                  "1a", "WEBSERVER_READ_HEADER_TIMEOUT": "1a",
 			},
 		}
 		err := CreateObject(env, configMap)
