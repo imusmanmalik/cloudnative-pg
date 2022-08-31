@@ -2484,6 +2484,16 @@ spec:
                 required:
                 - size
                 type: object
+              webserverReadHeaderTimeout:
+                description: The time in seconds is used as `ReadHeaderTimeout` for
+                  Webserver Default value is 3 (seconds)
+                format: int32
+                type: integer
+              webserverReadTimeout:
+                description: The time in seconds is used as `ReadTimeout` for Webserver
+                  Default value is 20 (seconds)
+                format: int32
+                type: integer
             required:
             - instances
             type: object

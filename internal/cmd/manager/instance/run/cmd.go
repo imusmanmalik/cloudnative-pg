@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
 	// nolint
 	apiv1 "github.com/cloudnative-pg/cloudnative-pg/api/v1"
 	"github.com/cloudnative-pg/cloudnative-pg/internal/cmd/manager/instance/run/lifecycle"
@@ -187,24 +188,34 @@ func runSubCommand(ctx context.Context, instance *postgres.Instance) error {
 	// which will imply the deletion of the child onlineUpgradeCtx too, again, terminating all the Runnables.
 	onlineUpgradeCtx, onlineUpgradeCancelFunc := context.WithCancel(postgresLifecycleManager.GetGlobalContext())
 	defer onlineUpgradeCancelFunc()
-	setupLog.Info("configuration.Current.EnableInstanceManagerInplaceUpdates: " +
-		strconv.FormatBool(configuration.Current.EnableInstanceManagerInplaceUpdates))
-	setupLog.Info("configuration.Current.WebserverReadTimeout: " + configuration.Current.WebserverReadTimeout)
-	setupLog.Info("configuration.Current.WebserverReadHeaderTimeout: "  + configuration.Current.WebserverReadHeaderTimeout)
-	setupLog.Info("configuration.Current.PostgresImageName: " + configuration.Current.PostgresImageName)
 
-	readTimeout, err := strconv.ParseInt(configuration.Current.WebserverReadTimeout, 10, 64)
 	if err != nil {
-		setupLog.Error(err, "unable to covert WebserverReadTimeout to int64, the value is: " +
-			configuration.Current.WebserverReadTimeout)
-	}
-	readHeaderTimeout, err := strconv.ParseInt(configuration.Current.WebserverReadHeaderTimeout, 10, 64)
-	if err != nil {
-		setupLog.Error(err, "unable to covert WebserverReadHeaderTimeout to int64, the value is: " +
+		setupLog.Error(err, "unable to covert WebserverReadHeaderTimeout to int64, the value is: "+
 			configuration.Current.WebserverReadHeaderTimeout)
 	}
+
+	var cluster apiv1.Cluster
+	newClient, err := client.New(mgr.GetConfig(), client.Options{Scheme: mgr.GetScheme()})
+	if err != nil {
+		setupLog.Error(err, "new client setup failed")
+	}
+
+	err = newClient.Get(ctx, client.ObjectKey{Namespace: instance.Namespace, Name: instance.ClusterName}, &cluster)
+	if err != nil {
+		setupLog.Error(err, "cluster requested failed")
+	}
+
+	webserverReadTimeout := cluster.Spec.WebserverReadTimeout
+	webserverReadHeaderTimeout := cluster.Spec.WebserverReadHeaderTimeout
+	setupLog.Info("webserverReadTimeout: " + strconv.FormatInt(int64(webserverReadTimeout), 10))
+	setupLog.Info("webserverReadHeaderTimeout: " + strconv.FormatInt(int64(webserverReadHeaderTimeout), 10))
+	setupLog.Info("~~~~")
+	setupLog.Info("cluster.Spec.WebserverReadTimeout: " + strconv.FormatInt(int64(cluster.Spec.WebserverReadTimeout), 10))
+	setupLog.Info("cluster.Spec.WebserverReadHeaderTimeout: " + strconv.FormatInt(int64(cluster.Spec.WebserverReadHeaderTimeout), 10))
+	setupLog.Info("instance.MaxSwitchoverDelay: " + strconv.FormatInt(int64((*instance).MaxSwitchoverDelay), 10))
+
 	remoteSrv, err := webserver.NewRemoteWebServer(instance, onlineUpgradeCancelFunc, exitedConditions,
-		readTimeout, readHeaderTimeout)
+		webserverReadTimeout, webserverReadHeaderTimeout)
 	if err != nil {
 		return err
 	}
@@ -212,7 +223,7 @@ func runSubCommand(ctx context.Context, instance *postgres.Instance) error {
 		setupLog.Error(err, "unable to add remote webserver runnable")
 		return err
 	}
-	localSrv, err := webserver.NewLocalWebServer(instance, readTimeout, readHeaderTimeout)
+	localSrv, err := webserver.NewLocalWebServer(instance, webserverReadTimeout, webserverReadHeaderTimeout)
 	if err != nil {
 		return err
 	}

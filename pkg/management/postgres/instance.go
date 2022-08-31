@@ -171,6 +171,14 @@ type Instance struct {
 	// fenced specifies whether fencing is on for the instance
 	// fenced entails mightBeUnavailable ( entails as in logical consequence)
 	fenced atomic.Bool
+
+	// WebserverReadTimeout is used as `ReadTimeout` for Webserver
+	// Default value is 20 (seconds)
+	WebserverReadTimeout int32
+
+	// WebserverReadHeaderTimeout is used as `ReadHeaderTimeout` for Webserver
+	// Default value is 3 (seconds)
+	WebserverReadHeaderTimeout int32
 }
 
 // IsFenced checks whether the instance is marked as fenced

@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -43,7 +44,8 @@ type localWebserverEndpoints struct {
 }
 
 // NewLocalWebServer returns a webserver that allows connection only from localhost
-func NewLocalWebServer(instance *postgres.Instance, readTimeout int64, readHeaderTimeout int64) (*Webserver, error) {
+func NewLocalWebServer(instance *postgres.Instance, webserverReadTimeout int32,
+	webserverReadHeaderTimeout int32) (*Webserver, error) {
 	typedClient, err := management.NewControllerRuntimeClient()
 	if err != nil {
 		return nil, fmt.Errorf("creating controller-runtine client: %v", err)
@@ -63,16 +65,11 @@ func NewLocalWebServer(instance *postgres.Instance, readTimeout int64, readHeade
 	serveMux.HandleFunc(url.PathCache, endpoints.serveCache)
 	serveMux.HandleFunc(url.PathPgBackup, endpoints.requestBackup)
 
-	rTimeout := DefaultReadTimeout
+	rTimeout := time.Duration(webserverReadTimeout) * time.Second
+	rHeaderTimeout := time.Duration(webserverReadHeaderTimeout) * time.Second
+	log.Info("instance.WebserverReadTimeout: " + strconv.FormatInt(int64(webserverReadTimeout), 10))
+	log.Info("instance.WebserverReadHeaderTimeout: " + strconv.FormatInt(int64(webserverReadHeaderTimeout), 10))
 
-	if readTimeout != 0 {
-		rTimeout = time.Duration(readTimeout) * time.Second
-	}
-
-	rHeaderTimeout := DefaultReadHeaderTimeout
-	if readHeaderTimeout != 0 {
-		rTimeout = time.Duration(readHeaderTimeout) * time.Second
-	}
 	server := &http.Server{
 		Addr:              fmt.Sprintf("localhost:%d", url.LocalPort),
 		Handler:           serveMux,

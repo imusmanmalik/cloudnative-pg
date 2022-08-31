@@ -19,7 +19,6 @@ package v1
 import (
 	"context"
 	"fmt"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -250,6 +249,14 @@ type ClusterSpec struct {
 	// +kubebuilder:default:=info
 	// +kubebuilder:validation:Enum:=error;warning;info;debug;trace
 	LogLevel string `json:"logLevel,omitempty"`
+
+	// The time in seconds is used as `ReadTimeout` for Webserver
+	// Default value is 20 (seconds)
+	WebserverReadTimeout int32 `json:"webserverReadTimeout,omitempty"`
+
+	// The time in seconds is used as `ReadHeaderTimeout` for Webserver
+	// Default value is 3 (seconds)
+	WebserverReadHeaderTimeout int32 `json:"webserverReadHeaderTimeout,omitempty"`
 }
 
 const (
@@ -1924,6 +1931,31 @@ func (cluster *Cluster) GetClusterAltDNSNames() []string {
 
 	return append(defaultAltDNSNames, cluster.Spec.Certificates.ServerAltDNSNames...)
 }
+
+//// GetWebserverReadTimeout get the amount of ReadTimeout for the Webserver
+//func (cluster *Cluster) GetWebserverReadTimeout() int32 {
+//	if cluster.Spec.WebserverReadTimeout > 0 {
+//		return cluster.Spec.WebserverReadTimeout
+//	}
+//	if len(configuration.Current.WebserverReadTimeout) > 0 {
+//		i, err := strconv.ParseInt(configuration.Current.WebserverReadTimeout, 10, 32)
+//		if err != nil {
+//			panic(err)
+//		}
+//		println("GetWebserverReadTimeout: " + configuration.Current.WebserverReadTimeout)
+//		return int32(i)
+//	}
+//	return 20
+//}
+
+//// GetWebserverReadHeaderTimeout get the amount of WebserverReadHeaderTimeout for the Webserver
+//func (cluster *Cluster) GetWebserverReadHeaderTimeout() int32 {
+//	if cluster.Spec.WebserverReadHeaderTimeout > 0 {
+//		return cluster.Spec.WebserverReadHeaderTimeout
+//	}
+//
+//	return 3
+//}
 
 // UsesSecret checks whether a given secret is used by a Cluster.
 //

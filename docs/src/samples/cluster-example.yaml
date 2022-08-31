@@ -4,6 +4,7 @@ metadata:
   name: cluster-example
 spec:
   instances: 3
-
+  webserverReadTimeout: 55
+  webserverReadHeaderTimeout: 2
   storage:
     size: 1Gi
