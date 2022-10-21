@@ -71,7 +71,7 @@ func ExtractInstancesStatus(
 	for idx := range filteredPods {
 		instanceStatus := getReplicaStatusFromPodViaExec(
 			ctx, config, filteredPods[idx], postgresContainerName)
-		instanceStatus.IsReady = utils.IsPodReady(filteredPods[idx])
+		instanceStatus.IsPodReady = utils.IsPodReady(filteredPods[idx])
 		result.Items = append(result.Items, instanceStatus)
 	}
 

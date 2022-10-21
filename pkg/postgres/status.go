@@ -70,8 +70,16 @@ type PostgresqlStatus struct {
 
 	// This field is set when there is an error while extracting the
 	// status of a Pod
-	Error   error `json:"-"`
-	IsReady bool  `json:"isReady"`
+	Error error `json:"-"`
+	// describes if the readiness probe is healthy
+	//
+	// The result represents the Kubelet point-of-view of the readiness
+	// status of this instance and may be slightly stale when the Kubelet has
+	// not still invoked the readiness probe.
+	//
+	// If you want to check the latest detected status of PostgreSQL, you
+	// need to use IsPostgresqlReady and not this function.
+	IsPodReady bool `json:"isReady"`
 
 	// Status of the instance manager
 	ExecutableHash             string `json:"executableHash"`
@@ -98,25 +106,12 @@ type PgStatReplication struct {
 	SyncPriority    string `json:"syncPriority,omitempty"`
 }
 
-// IsReadinessProbePositive checks if the readiness probe is positive for
-// the Pod corresponding to this instance.
-//
-// The result represents the Kubelet point-of-view of the readiness
-// status of this instance and may be slightly stale when the Kubelet has
-// not still invoked the readiness probe.
-//
-// If you want to check the latest detected status of PostgreSQL, you
-// need to use IsPostgresqlReady and not this function.
-func (status PostgresqlStatus) IsReadinessProbePositive() bool {
-	return status.IsReady
-}
-
 // IsPostgresqlReady checks if the instance manager is reporting this
 // instance as ready.
 //
 // The result represents the state of PostgreSQL at the moment of the
 // collection of the instance status and is more up-to-date than
-// IsReadinessProbePositive, which is updated asynchronously.
+// IsPodReady, which is updated asynchronously.
 func (status PostgresqlStatus) IsPostgresqlReady() bool {
 	// To load the status of this instance, we use the `/pg/status` endpoint
 	// of the instance manager. PostgreSQL is ready and running if the
@@ -191,7 +186,7 @@ func (list *PostgresqlStatusList) LogStatus(ctx context.Context) {
 			"receivedLsn", item.ReceivedLsn,
 			"replayLsn", item.ReplayLsn,
 			"isPrimary", item.IsPrimary,
-			"isReady", item.IsReady,
+			"isReady", item.IsPodReady,
 			"pendingRestart", item.PendingRestart,
 			"pendingRestartForDecrease", item.PendingRestartForDecrease,
 			"statusCollectionError", item.Error)

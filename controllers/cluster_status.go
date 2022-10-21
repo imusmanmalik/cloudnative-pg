@@ -818,9 +818,9 @@ func (r *ClusterReconciler) extractInstancesStatus(
 	for idx := range activePods {
 		instanceStatus := r.getReplicaStatusFromPodViaHTTP(ctx, activePods[idx])
 
-		// IsReady is not populated by the instance manager, so we detect it from the
+		// IsPodReady is not populated by the instance manager, so we detect it from the
 		// Pod status
-		instanceStatus.IsReady = utils.IsPodReady(activePods[idx])
+		instanceStatus.IsPodReady = utils.IsPodReady(activePods[idx])
 		instanceStatus.Node = activePods[idx].Spec.NodeName
 		instanceStatus.Pod = activePods[idx]
 
