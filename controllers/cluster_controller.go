@@ -253,22 +253,22 @@ func (r *ClusterReconciler) reconcile(ctx context.Context, cluster *apiv1.Cluste
 		onlineUpdateEnabled = false
 	}
 
-	// The instance list is sorted and will present the primary as the first element
-	// and the replicas with the most updated coming first. Pods which are not
-	// responding will be put at the end of the list.
-	// To sort the instances we use the information reported by the instance manager
-	// as it has been updated now.
+	// The instance list is sorted and will present the primary as the first
+	// element, followed by the replicas, the most updated coming first.
+	// Pods that are not responding will be at the end of the list. We use
+	// the information reported by the instance manager to sort the
+	// instances. When we need to elect a new primary, we take the first item
+	// on this list.
 	//
-	// This list will be used to elect a new primary when needed, and the new primary
-	// will be the first element.
+	// Here we check the readiness status of the first Pod as we can't
+	// promote an instance that is not ready from the Kubernetes
+	// point-of-view: the services will not forward traffic to it even if
+	// PostgreSQL is up and running.
 	//
-	// Here we check the readiness status of the Kubernetes Pod as we can't promote
-	// an instance which is not ready from the Kubernetes point-of-view: the services
-	// will not forward traffic to it even if PostgreSQL is up and running.
-	//
-	// It's possible for an instance to be up and running even if the readiness
-	// probe is negative: this is going to happen, i.e., when fencing is lifted
-	// and the Kubelet still haven't still refreshed the status of the readiness probe.
+	// An instance can be up and running even if the readiness probe is
+	// negative: this is going to happen, i.e., when an instance is
+	// un-fenced, and the Kubelet still hasn't refreshed the status of the
+	// readiness probe.
 	if instancesStatus.Len() > 0 {
 		isPostgresReady := instancesStatus.Items[0].IsPostgresqlReady()
 		isPodReady := instancesStatus.Items[0].IsReadinessProbePositive()

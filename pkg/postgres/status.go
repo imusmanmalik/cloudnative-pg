@@ -98,31 +98,32 @@ type PgStatReplication struct {
 	SyncPriority    string `json:"syncPriority,omitempty"`
 }
 
-// IsReadinessProbePositive checks if the readiness probe is positive
-// for the Pod corresponding to this instance.
+// IsReadinessProbePositive checks if the readiness probe is positive for
+// the Pod corresponding to this instance.
 //
-// This represents the Kubelet point-of-view of the readiness status
-// of this instance, and may be slightly stale when the Kubelet
-// has not still invoked the readiness probe.
+// The result represents the Kubelet point-of-view of the readiness
+// status of this instance and may be slightly stale when the Kubelet has
+// not still invoked the readiness probe.
 //
-// If you want to check the latest detected status of PostgreSQL
-// you need to use IsPostgresqlReady and not this function.
+// If you want to check the latest detected status of PostgreSQL, you
+// need to use IsPostgresqlReady and not this function.
 func (status PostgresqlStatus) IsReadinessProbePositive() bool {
 	return status.IsReady
 }
 
-// IsPostgresqlReady checks if the instance manager is reporting
-// this instance as ready.
+// IsPostgresqlReady checks if the instance manager is reporting this
+// instance as ready.
 //
-// This is updated at the moment of the collection of the status
-// of this instance, and is more updated then IsReadinessProbePositive
+// The result represents the state of PostgreSQL at the moment of the
+// collection of the instance status and is more up-to-date than
+// IsReadinessProbePositive, which is updated asynchronously.
 func (status PostgresqlStatus) IsPostgresqlReady() bool {
-	// To load the status of this instance we use the `/pg/status` endpoint
-	// of the instance manager. If the status has been collected successfully
-	// then PostgreSQL is ready and running, and the Error field will be nil.
+	// To load the status of this instance, we use the `/pg/status` endpoint
+	// of the instance manager. PostgreSQL is ready and running if the
+	// endpoint returns success, and the Error field will be nil.
 	//
 	// Otherwise, we didn't manage to collect the status of the PostgreSQL
-	// instance, and we'll have an error inside the Error field
+	// instance, and we'll have an error inside the Error field.
 	return status.Error != nil
 }
 
